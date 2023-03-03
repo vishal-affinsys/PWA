@@ -1,6 +1,7 @@
-import React from "react";
+import React, { LegacyRef } from "react";
 import logo from "./logo.svg";
 import "./App.css";
+import Webcam from "react-webcam";
 
 function App() {
   //
@@ -36,10 +37,52 @@ function App() {
     });
   }, []);
 
+  const [source, setSource] = React.useState("");
+
+  const handleCapture = (target: any) => {
+    if (target.files) {
+      if (target.files.length !== 0) {
+        const file = target.files[0];
+        const newUrl = URL.createObjectURL(file);
+        console.log(newUrl);
+        setSource(newUrl);
+      }
+    }
+  };
+
+  function handleClick() {
+    navigator.mediaDevices.getUserMedia({
+      audio: true,
+      video: true,
+    });
+  }
+  const videoConstraints = {
+    width: 1280,
+    height: 720,
+    facingMode: "user",
+  };
+
+  const webcamRef = React.useRef<Webcam | undefined>();
+  const capture = React.useCallback(() => {
+    const imageSrc = webcamRef.current?.getScreenshot();
+    console.log(imageSrc);
+  }, [webcamRef]);
+
   return (
     <div className="App">
       <header className="App-header">
         <button className="add-button">Add to home screen</button>
+        <Webcam
+          audio={false}
+          ref={webcamRef as LegacyRef<Webcam> | undefined}
+          height={720}
+          screenshotFormat="image/jpeg"
+          allowFullScreen={true}
+          capture="environment"
+          width={1280}
+          videoConstraints={videoConstraints}
+        />
+        <button onClick={capture}>Click</button>
 
         <img src={logo} className="App-logo" alt="logo" />
         <p>
